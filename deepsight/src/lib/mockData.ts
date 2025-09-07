@@ -1,6 +1,7 @@
 import { Detection, Alert, DashboardStats, AuthorizedAd } from '@/types';
 
-export const mockDetections: Detection[] = [
+// Initial mock data
+export const initialDetections: Detection[] = [
   {
     id: 'A123',
     image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop',
@@ -25,28 +26,6 @@ export const mockDetections: Detection[] = [
       lng: -74.0060,
       address: '5th Avenue, Manhattan, NY'
     }
-  },
-  {
-    id: 'B456',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop',
-    text: 'City Tourism Board - Visit NYC',
-    confidence: '89%',
-    status: 'Authorized',
-    timestamp: '2025-08-22T13:22:00Z',
-    boundingBoxes: [
-      {
-        id: 'bb2',
-        x: 200,
-        y: 100,
-        width: 400,
-        height: 200,
-        confidence: 0.89,
-        text: 'City Tourism Board - Visit NYC',
-        status: 'Authorized'
-      }
-    ],
-    reviewed: true,
-    reviewedBy: 'Sarah Chen'
   },
   {
     id: 'C789',
@@ -90,80 +69,18 @@ export const mockDetections: Detection[] = [
   }
 ];
 
-export const mockAlerts: Alert[] = [
-  {
-    id: 'alert1',
-    detection: mockDetections[0],
-    type: 'violation',
-    priority: 'high',
-    timestamp: '2025-08-22T14:35:00Z'
-  },
-  {
-    id: 'alert2',
-    detection: mockDetections[2],
-    type: 'violation',
-    priority: 'high',
-    timestamp: '2025-08-22T12:15:00Z'
-  },
-  {
-    id: 'alert3',
-    detection: mockDetections[3],
-    type: 'suspicious',
-    priority: 'medium',
-    timestamp: '2025-08-22T11:45:00Z'
-  }
-];
-
-export const mockAuthorizedAds: AuthorizedAd[] = [
-  {
-    id: 'auth1',
-    text: 'City Tourism Board - Visit NYC',
-    description: 'Official NYC tourism campaign',
-    addedBy: 'Sarah Chen',
-    dateAdded: '2025-08-01T09:00:00Z',
-    expiryDate: '2025-12-31T23:59:59Z',
-    active: true
-  },
-  {
-    id: 'auth2',
-    text: 'Public Health Safety Notice',
-    description: 'COVID-19 safety guidelines',
-    addedBy: 'Marcus Rodriguez',
-    dateAdded: '2025-07-15T10:30:00Z',
-    active: true
-  },
-  {
-    id: 'auth3',
-    text: 'Metro Transit Schedule Update',
-    description: 'Updated subway schedules',
-    addedBy: 'Sarah Chen',
-    dateAdded: '2025-08-10T14:00:00Z',
-    expiryDate: '2025-09-30T23:59:59Z',
-    active: true
-  }
-];
-
-export const mockDashboardStats: DashboardStats = {
-  totalDetections: 247,
-  unauthorizedAds: 43,
-  detectionRate: 87.3,
-  alertsToday: 8,
-  trendsData: [
-    { date: '2025-08-15', detections: 23, violations: 4 },
-    { date: '2025-08-16', detections: 31, violations: 7 },
-    { date: '2025-08-17', detections: 28, violations: 5 },
-    { date: '2025-08-18', detections: 35, violations: 9 },
-    { date: '2025-08-19', detections: 29, violations: 6 },
-    { date: '2025-08-20', detections: 42, violations: 12 },
-    { date: '2025-08-21', detections: 38, violations: 8 },
-    { date: '2025-08-22', detections: 21, violations: 3 }
-  ]
+// Mock Data Store
+const data = {
+  detections: [...initialDetections],
+  alerts: [] as Alert[],
+  authorizedAds: [] as AuthorizedAd[],
+  results: [] as Array<{ id: string; detection: Detection; result: string; timestamp: string }>
 };
 
-// Simulated API functions
+// Mock API Implementation
 export const api = {
   uploadImage: async (file: File): Promise<Detection> => {
-    // Simulate upload delay
+    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Generate mock detection result
@@ -188,21 +105,67 @@ export const api = {
       ]
     };
     
+    data.detections.push(mockResult);
     return mockResult;
   },
-  
+
   getDetections: async (): Promise<Detection[]> => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    return mockDetections;
+    return data.detections;
   },
-  
+
   getAlerts: async (): Promise<Alert[]> => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return mockAlerts;
+    return data.alerts;
   },
-  
+
   getDashboardStats: async (): Promise<DashboardStats> => {
+    const stats: DashboardStats = {
+      totalDetections: data.detections.length,
+      unauthorizedAds: data.alerts.length,
+      detectionRate: 85,
+      alertsToday: data.alerts.filter(a => 
+        new Date(a.timestamp).toDateString() === new Date().toDateString()
+      ).length,
+      trendsData: [
+        { date: '2025-08-20', detections: 12, violations: 3 },
+        { date: '2025-08-21', detections: 15, violations: 4 },
+        { date: '2025-08-22', detections: 10, violations: 2 }
+      ]
+    };
     await new Promise(resolve => setTimeout(resolve, 400));
-    return mockDashboardStats;
+    return stats;
+  },
+
+  addAuthorizedAd: async (ad: AuthorizedAd): Promise<void> => {
+    data.authorizedAds.push(ad);
+    // Also add to detections for consistency
+    data.detections.push({
+      id: ad.id,
+      text: ad.text,
+      image: 'https://picsum.photos/800/600', // Placeholder image
+      confidence: '100%',
+      status: 'Authorized',
+      timestamp: ad.dateAdded
+    });
+    await new Promise(resolve => setTimeout(resolve, 300));
+  },
+
+  addAlert: async (alert: Alert): Promise<void> => {
+    data.alerts.push(alert);
+    // Add detection to list if not already present
+    if (!data.detections.some(d => d.id === alert.detection.id)) {
+      data.detections.push(alert.detection);
+    }
+    await new Promise(resolve => setTimeout(resolve, 300));
+  },
+
+  addDetectionResult: async (result: { id: string; detection: Detection; result: string; timestamp: string }): Promise<void> => {
+    data.results.push(result);
+    // Add detection to list if not already present
+    if (!data.detections.some(d => d.id === result.detection.id)) {
+      data.detections.push(result.detection);
+    }
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 };

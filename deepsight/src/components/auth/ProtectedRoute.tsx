@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { LoginPage } from './LoginPage';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
@@ -34,7 +34,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!user) {
-    return <LoginPage />;
+    return <Navigate to="/login" replace />;
   }
 
   if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {

@@ -31,7 +31,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Detection } from '@/types';
-import { api, mockDetections } from '@/lib/mockData';
+import { api } from '@/lib/mockData';
 
 type SortField = 'timestamp' | 'confidence' | 'text' | 'status';
 type SortOrder = 'asc' | 'desc';
@@ -53,8 +53,8 @@ export default function Results() {
         setFilteredDetections(detectionsData);
       } catch (error) {
         console.error('Failed to load detections:', error);
-        setDetections(mockDetections);
-        setFilteredDetections(mockDetections);
+        setDetections([]);
+        setFilteredDetections([]);
       } finally {
         setIsLoading(false);
       }

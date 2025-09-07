@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DashboardStats, Detection } from '@/types';
-import { api, mockDetections } from '@/lib/mockData';
+import { api } from '@/lib/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 
 const statsCards = [
@@ -67,8 +67,8 @@ export default function Dashboard() {
         setRecentDetections(detectionsData.slice(0, 5));
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
-        // Fallback to mock data
-        setRecentDetections(mockDetections.slice(0, 5));
+        // Reset to empty state on error
+        setRecentDetections([]);
       } finally {
         setIsLoading(false);
       }
